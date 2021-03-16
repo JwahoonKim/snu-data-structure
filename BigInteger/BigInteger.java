@@ -1,0 +1,225 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+ 
+// 제출전에 import 된거 없나 꼭 확인!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//삭제해야함
+import java.util.Arrays;
+
+public class BigInteger {
+    public static final String QUIT_COMMAND = "quit";
+    public static final String MSG_INVALID_INPUT = "입력이 잘못되었습니다.";
+    public String number;
+    public char[] numArr = new char[101];
+    public char sign;
+    public int size;
+    // implement this
+    public static final Pattern EXPRESSION_PATTERN = Pattern.compile("");
+
+    public BigInteger(String s) {
+        this.number = s;
+        char[] arr = new char[101];
+        size = s.length();
+
+        // 입력받은 string을 한글자씩 거꾸로 배열에 옮기기 (연산 편해지도록)
+        for (int i = size - 1, j = 0; i >= 0; i--, j++) {
+            arr[j] = s.charAt(i);
+        }
+
+        // numArr는 입력받은 숫자를 거꾸로 배열에 저장
+        this.numArr = arr;
+    }
+
+    public BigInteger add(BigInteger big) {
+        int resultSize = Math.max(this.size, big.size) + 1;
+        int[] resultArr = new int[resultSize];
+        int nowTmp = 0;
+        int nextTmp = 0;
+        String result = "";
+
+        for (int i = this.size; i < resultSize; i++) {
+            numArr[i] = '0';
+        }
+        for (int i = big.size; i < resultSize; i++) {
+            big.numArr[i] = '0';
+        }
+
+        for (int i = 0; i < resultSize; i++) {
+            int sum = (numArr[i] - '0') + (big.numArr[i] - '0');
+            int res = sum + nowTmp;
+
+            if (res >= 10) {
+                nextTmp = 1;
+                res -= 10;
+            }
+
+            resultArr[i] = res;
+            nowTmp = nextTmp;
+            nextTmp = 0;
+        }
+
+        if (resultArr[resultSize - 1] == 0) {
+            for (int i = resultSize - 2; i >= 0; i--) {
+                result += resultArr[i];
+            }
+        } else {
+            for (int i = resultSize - 1; i >= 0; i--) {
+                result += resultArr[i];
+            }
+        }
+
+        return new BigInteger(result);
+    }
+
+    // 자신이 크면 1, 인자가 크면 2를 return 하는 함수
+    public int findBigger(String num2){
+        String num1 = this.number;
+        if(num1.length() > num2.length()) return 1
+        else if(num1.length() < num2.length()) return 2
+        else{
+            for(int i = 0; i < num1.length(); i ++){
+                int first = (int) (num1.charAt(i) - '0');
+                int second = (int) (num2.charAt(i) - '0');
+                if(first > second) return 1;
+                else if(first < second) return 2;
+                else continue;
+            }
+        }
+        return 1
+    }
+
+    public BigInteger subtract(BigInteger big) {
+        int resultSize = Math.max(this.size, big.size);
+        int[] resultArr = new int[resultSize];
+        String result = "";
+        // 더 큰 수 찾아서 빼고 부호조정하자
+        if (number.findBigger(big.number) == 1) {
+
+        } else {
+
+        }
+        return new BigInteger(result);
+    }
+
+    public BigInteger multiply(BigInteger big) {
+        return new BigInteger(0);
+    }
+
+    @Override
+    public String toString() {
+        String number = "";
+        for (char i : numArr) {
+            number += i;
+        }
+        return number;
+    }
+
+    static BigInteger evaluate(String input) throws IllegalArgumentException {
+        // implement here
+        // parse input
+        // using regex is allowed
+
+        char firstOperator = ' ';
+        char[] secondOperator = new char[2];
+        String firstNumber = "";
+        String secondNumber = "";
+        char[] resultArr = new char[202];
+        int cursor = 0;
+
+        // 1. 공백제거
+        input = input.replaceAll(" ", "");
+
+        // 2. 첫번째 char가 부호인지 체크
+        char first = input.charAt(0);
+        if (first == '+' || first == '-') {
+            firstOperator = first;
+            cursor++;
+        }
+        int i = 0;
+        // 3. 숫자, 부호, 숫자 순으로 배열에 하나씩 삽입
+        while (true) {
+            if (cursor >= input.length())
+                break;
+            char now = input.charAt(cursor);
+            // now가 숫자가 아닌 경우
+            if (now < 48 || now > 57) {
+                secondOperator[i] = now;
+                i++;
+                cursor++;
+            } else {
+                // 부호가 한번도 나오지 않았으면 첫번째 숫자 체크 중
+                if (i == 0) {
+                    firstNumber += now;
+                } else {
+                    secondNumber += now;
+                }
+                cursor++;
+            }
+        }
+
+        // 곱셈을 써야하는 경우
+        if (secondOperator[0] == '*') {
+
+        }
+        // 덧셈을 써야하는 경우
+
+        // 뺄셈을 써야하는 경우
+
+        // 출력확인용 지워!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // System.out.println(firstOperator);
+        // System.out.println(Arrays.toString(firstNumber));
+        // System.out.println(firstCursor);
+        // System.out.println(firstNumber);
+        // System.out.println(secondNumber);
+
+        // One possible implementation
+        // BigInteger num1 = new BigInteger(arg1);
+        // BigInteger num2 = new BigInteger(arg2);
+        // BigInteger result = num1.add(num2);
+        // return result;
+
+        // 덧셈
+        // 1. 앞이 + , 뒤가 ++ or + 2. 앞이 -, 뒤가 -+ or +- or - 3. 앞이 ' ' , 뒤가 ++ or +
+        // 뺄셈
+
+        // 곱셈 1. 뒤의 첫번째 원소가 * 인 경우
+
+        // 임시방편 리턴값
+        return new BigInteger("123");
+    }
+
+    public static void main(String[] args) throws Exception {
+        try (InputStreamReader isr = new InputStreamReader(System.in)) {
+            try (BufferedReader reader = new BufferedReader(isr)) {
+                boolean done = false;
+                while (!done) {
+                    String input = reader.readLine();
+
+                    try { // input이 quit이었으면 done = true 아니면 false
+                        done = processInput(input);
+                    } catch (IllegalArgumentException e) {
+                        System.err.println(MSG_INVALID_INPUT);
+                    }
+                }
+            }
+        }
+    }
+
+    static boolean processInput(String input) throws IllegalArgumentException {
+        boolean quit = isQuitCmd(input);
+
+        if (quit) {
+            return true;
+        } else {
+            BigInteger result = evaluate(input);
+            System.out.println(result.toString());
+
+            return false;
+        }
+    }
+
+    static boolean isQuitCmd(String input) { // input이 quit 이면 processInput에서 종료하도록 만들어줌
+        return input.equalsIgnoreCase(QUIT_COMMAND);
+    }
+}
