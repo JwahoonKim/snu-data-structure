@@ -192,7 +192,7 @@ public class BigInteger {
         int cursor = 0;
 
         // 1. 공백제거
-        input = input.replaceAll(" ", "");
+        input = input.replaceAll("\\p{Z}", "");
 
         // 2. 첫번째 char가 부호인지 체크
         char first = input.charAt(0);
@@ -291,7 +291,8 @@ public class BigInteger {
 
             }
             if (firstOperator == '-' && secondOperator[1] == '-') {
-                return num1.add(num2);
+                String res = "-" + num1.add(num2).number;
+                return new BigInteger(res);
             }
         }
 
@@ -356,7 +357,6 @@ public class BigInteger {
         } else {
             BigInteger result = evaluate(input);
             System.out.println(result.toString());
-
             return false;
         }
     }
