@@ -226,6 +226,9 @@ public class BigInteger {
 
         // 곱셈을 써야하는 경우
         if (secondOperator[0] == '*') {
+            if (secondNumber.equals("0") || firstNumber.equals("0")) {
+                return new BigInteger("0");
+            }
             if (firstOperator == ' ' && secondOperator[1] == '\u0000') {
                 return num1.multiply(num2);
             }
