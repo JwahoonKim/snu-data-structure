@@ -11,23 +11,23 @@ public class MyLinkedList<T> implements ListInterface<T> {
 		head = new Node<T>(null);
 	}
 
-    /**
-     * {@code Iterable<T>}를 구현하여 iterator() 메소드를 제공하는 클래스의 인스턴스는
-     * 다음과 같은 자바 for-each 문법의 혜택을 볼 수 있다.
-     * 
-     * <pre>
-     *  for (T item: iterable) {
-     *  	item.someMethod();
-     *  }
-     * </pre>
-     * 
-     * @see PrintCmd#apply(MovieDB)
-     * @see SearchCmd#apply(MovieDB)
-     * @see java.lang.Iterable#iterator()
-     */
-    public final Iterator<T> iterator() {
-    	return new MyLinkedListIterator<T>(this);
-    }
+	/**
+	 * {@code Iterable<T>}를 구현하여 iterator() 메소드를 제공하는 클래스의 인스턴스는 다음과 같은 자바 for-each
+	 * 문법의 혜택을 볼 수 있다.
+	 * 
+	 * <pre>
+	 * for (T item : iterable) {
+	 * 	item.someMethod();
+	 * }
+	 * </pre>
+	 * 
+	 * @see PrintCmd#apply(MovieDB)
+	 * @see SearchCmd#apply(MovieDB)
+	 * @see java.lang.Iterable#iterator()
+	 */
+	public final Iterator<T> iterator() {
+		return new MyLinkedListIterator<T>(this);
+	}
 
 	@Override
 	public boolean isEmpty() {
@@ -45,6 +45,7 @@ public class MyLinkedList<T> implements ListInterface<T> {
 	}
 
 	@Override
+	// 맨 끝에 삽입?
 	public void add(T item) {
 		Node<T> last = head;
 		while (last.getNext() != null) {
