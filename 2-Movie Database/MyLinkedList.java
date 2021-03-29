@@ -45,13 +45,21 @@ public class MyLinkedList<T> implements ListInterface<T> {
 	}
 
 	@Override
-	// 맨 끝에 삽입?
+	// 정렬 순서에 맞게 삽입하는 함수
 	public void add(T item) {
-		Node<T> last = head;
-		while (last.getNext() != null) {
-			last = last.getNext();
+		Node<T> nowNode = head;
+		while (nowNode.next != null) {
+			T nextItem = nowNode.next.item;
+			// 같은 내용이면 삽입 X
+			if (item.equals(nextItem))
+				return;
+			else if (item.compareTo(nextItem) < 0) {
+				break;
+			} else {
+				nowNode = nowNode.next;
+			}
 		}
-		last.insertNext(item);
+		nowNode.insertNext(item);
 		numItems += 1;
 	}
 
