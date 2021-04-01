@@ -21,7 +21,7 @@ public class MovieDB {
     	
     	// DB에 같은 장르가 있는 경우
     	for(Genre gen : genreList) {
-    		if (gen.item == nowGenre.item) {
+    		if (gen.item.equals(nowGenre.item)) {
     			exist = true;
     			gen.movieList.add(item);
     		}
@@ -109,8 +109,9 @@ class Genre extends Node<String> implements Comparable<Genre> {
 	}
 
 	@Override
-	public boolean equals(Genre o) {
-		return this.item.equals(o.item);
+	public boolean equals(Object o) {
+		Genre other = (Genre) o;
+		return this.item.equals(other.item);
 	}
 }
 

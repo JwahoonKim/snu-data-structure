@@ -54,7 +54,8 @@ public class MyLinkedList<T extends Comparable<T>> implements ListInterface<T> {
 				return;
 			else if (item.compareTo(nextItem) < 0) {
 				break;
-			} else {
+			} 
+			else {
 				nowNode = nowNode.next;
 			}
 		}
