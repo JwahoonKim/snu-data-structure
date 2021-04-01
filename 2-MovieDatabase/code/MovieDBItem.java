@@ -2,19 +2,14 @@
 /******************************************************************************
  * MovieDB의 인터페이스에서 공통으로 사용하는 클래스.
  */
-
-// ---------------------------------- 완성 끝 ----------------------------//
-
 public class MovieDBItem implements Comparable<MovieDBItem> {
 
-    private final String genre;
-    private final String title;
+    public final String genre;
+    public final String title;
 
     public MovieDBItem(String genre, String title) {
-        if (genre == null)
-            throw new NullPointerException("genre");
-        if (title == null)
-            throw new NullPointerException("title");
+        if (genre == null) throw new NullPointerException("genre");
+        if (title == null) throw new NullPointerException("title");
 
         this.genre = genre;
         this.title = title;
@@ -31,7 +26,7 @@ public class MovieDBItem implements Comparable<MovieDBItem> {
     @Override
     public int compareTo(MovieDBItem other) {
         // 1. 장르 비교
-        if (genre.compareTo(other.genre) != 0) {
+        if (this.genre.compareTo(other.genre) != 0) {
             return genre.compareTo(other.genre);
         }
         // 2. 장르 같으면 제목 비교
@@ -61,7 +56,6 @@ public class MovieDBItem implements Comparable<MovieDBItem> {
     }
 
     @Override
-    // 같은 객체인지 확인하는 함수
     public int hashCode() {
         final int prime = 31;
         int result = 1;

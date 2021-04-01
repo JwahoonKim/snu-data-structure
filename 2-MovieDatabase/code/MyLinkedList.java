@@ -1,8 +1,7 @@
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class MyLinkedList<T> implements ListInterface<T> {
+public class MyLinkedList<T extends Comparable<T>> implements ListInterface<T> {
 	// dummy head
 	Node<T> head;
 	int numItems;
@@ -11,23 +10,23 @@ public class MyLinkedList<T> implements ListInterface<T> {
 		head = new Node<T>(null);
 	}
 
-	/**
-	 * {@code Iterable<T>}를 구현하여 iterator() 메소드를 제공하는 클래스의 인스턴스는 다음과 같은 자바 for-each
-	 * 문법의 혜택을 볼 수 있다.
-	 * 
-	 * <pre>
-	 * for (T item : iterable) {
-	 * 	item.someMethod();
-	 * }
-	 * </pre>
-	 * 
-	 * @see PrintCmd#apply(MovieDB)
-	 * @see SearchCmd#apply(MovieDB)
-	 * @see java.lang.Iterable#iterator()
-	 */
-	public final Iterator<T> iterator() {
-		return new MyLinkedListIterator<T>(this);
-	}
+    /**
+     * {@code Iterable<T>}를 구현하여 iterator() 메소드를 제공하는 클래스의 인스턴스는
+     * 다음과 같은 자바 for-each 문법의 혜택을 볼 수 있다.
+     * 
+     * <pre>
+     *  for (T item: iterable) {
+     *  	item.someMethod();
+     *  }
+     * </pre>
+     * 
+     * @see PrintCmd#apply(MovieDB)
+     * @see SearchCmd#apply(MovieDB)
+     * @see java.lang.Iterable#iterator()
+     */
+    public final Iterator<T> iterator() {
+    	return new MyLinkedListIterator<T>(this);
+    }
 
 	@Override
 	public boolean isEmpty() {
@@ -45,7 +44,7 @@ public class MyLinkedList<T> implements ListInterface<T> {
 	}
 
 	@Override
-	// 정렬 순서에 맞게 삽입하는 함수
+	// 정렬 순서에 맞게 링크드 리스트에 add하는 함수
 	public void add(T item) {
 		Node<T> nowNode = head;
 		while (nowNode.next != null) {
@@ -62,15 +61,19 @@ public class MyLinkedList<T> implements ListInterface<T> {
 		nowNode.insertNext(item);
 		numItems += 1;
 	}
-
+	
 	@Override
 	public void removeAll() {
 		head.setNext(null);
 	}
+
+
 }
 
-class MyLinkedListIterator<T> implements Iterator<T> {
-
+class MyLinkedListIterator<T extends Comparable<T>> implements Iterator<T> {
+	// FIXME implement this
+	// Implement the iterator for MyLinkedList.
+	// You have to maintain the current position of the iterator.
 	private MyLinkedList<T> list;
 	private Node<T> curr;
 	private Node<T> prev;
