@@ -22,7 +22,6 @@ public class CalculatorTest
 			}
 		}
 	}
-	//private임
 	private static void command(String input) throws Exception 
 	{
 		String answer = "";
@@ -73,7 +72,7 @@ public class CalculatorTest
 		return true;
 	}
 	
-	// 후위표기법을 만드는 규칙을 정의한 함수
+	// 후위표기법으로 계산하는 방식을 구현한 함수
 	public static void dealOperator(String operator, Stack<String> stack, List<String> list) {
 		if (stack.empty()) {
 			stack.push(operator);
@@ -167,7 +166,8 @@ public class CalculatorTest
 				isUnary = false;
 				continue;
 			}
-			//cur가 부호면 넘버를 postfix리스트에 집어넣고 부호는 stack에서 처리(위에서 정의한 후위표기법 방식에 따라서)
+			//cur가 부호면 지금까지 쌓아온 number를 postfix리스트에 집어넣고
+			//부호는 stack에서 처리(위에서 구현한 후위표기법 방식에 따라서)
 			else {
 				if(number != "") {
 					postfix.add(number);
