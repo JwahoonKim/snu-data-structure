@@ -1,7 +1,8 @@
-package sortingTest;
+// 대부분의 sorting 함수를 교수님의 강의ppt를 바탕으로 참고하여 짰습니다.
 
 import java.io.*;
 import java.util.*;
+
 
 public class SortingTest
 {
@@ -61,7 +62,7 @@ public class SortingTest
 						newvalue = DoHeapSort(newvalue);
 						break;
 					case 'M':	// Merge Sort
-						newvalue = DoMergeSort(newvalue);
+						newvalue = DoMergeSort(newvalue, 0, newvalue.length - 1);
 						break;
 					case 'Q':	// Quick Sort
 						newvalue = DoQuickSort(newvalue);
@@ -105,12 +106,12 @@ public class SortingTest
 		// 주어진 value 배열에서 안의 값만을 바꾸고 value를 다시 리턴하거나
 		// 같은 크기의 새로운 배열을 만들어 그 배열을 리턴할 수도 있다.
 		int size = value.length;
-		for(int i = 0; i < size - 1; i++) {
-			for(int j = 0; j < size - 1 - i; j++) {
-				if(value[j] > value[j + 1]) {
-					int temp = value[j + 1];
-					value[j + 1] = value[j];
-					value[j] = temp;
+		for(int last = size - 1; 0 < last; last--) {
+			for(int i = 0; i < last - 1; i++) {
+				if(value[i] > value[i + 1]) {
+					int temp = value[i + 1];
+					value[i + 1] = value[i];
+					value[i] = temp;
 				}
 			}
 		}
@@ -121,34 +122,68 @@ public class SortingTest
 	private static int[] DoInsertionSort(int[] value)
 	{
 		// TODO : Insertion Sort 를 구현하라.
-		
+		int size = value.length;
+		for(int i = 1; i < size; i++) {
+			int j = i - 1;
+			int insertionItem = value[i];
+			while(0 <= j && insertionItem < value[j]) {
+				value[j + 1] = value[j];
+				j--;
+			}
+		value[j + 1] = insertionItem;
+		}
 		return (value);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	private static int[] DoHeapSort(int[] value)
 	{
 		// TODO : Heap Sort 를 구현하라.
-		return (value);
+		Heap heapValue = new Heap(value);
+		heapValue.buildHeap();
+		for(int i = heapValue.numItems - 1; i >= 1; i--) {
+			heapValue.A[i] = heapValue.deleteMax();
+		}
+		int[] sortedValue = heapValue.A;
+		return (sortedValue);
 	}
-	
-	//buildHeap 함수 구현
-	
-	//percorateDown 함수 구현
-	
-	//deleteMax 함수 구현
 	
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private static int[] DoMergeSort(int[] value)
-	{
+	private static int[] DoMergeSort(int[] value, int left, int right)
+	{ 
 		// TODO : Merge Sort 를 구현하라.
+		if(left < right) {
+			int mid = (left + right) / 2;
+			DoMergeSort(value, left, mid);
+			DoMergeSort(value, mid + 1, right);
+			merge(value, left, mid, right);
+		}
 		return (value);
 	}
 	
 	//merge 함수 구현
-	private static int[] Merge() {
-		return [1];
+	private static void merge(int[] A, int left, int mid, int right) {
+		int[] tmp = new int[right - left + 1];
+		int leftCur = left;
+		int rightCur = mid + 1;
+		int tmpCur = 0;
+		while(leftCur <= mid && rightCur <= right) {
+			if(A[leftCur] < A[rightCur])
+				tmp[tmpCur++] = A[leftCur++];
+			else {
+				tmp[tmpCur++] = A[rightCur++];
+			}
+		}
+		while(leftCur <= mid)
+			tmp[tmpCur++] = A[leftCur++];
+		while(rightCur <= right)
+			tmp[tmpCur++] = A[rightCur++];
+		leftCur = left;
+		tmpCur = 0;
+		while(leftCur <= right) 
+			A[leftCur++] = tmp[tmpCur++];
 	}
 	
 	
@@ -166,3 +201,53 @@ public class SortingTest
 		return (value);
 	}
 }
+
+class Heap{
+	public int[] A;
+	public int numItems;
+	
+	public Heap(int[] arr) {
+		A = arr;
+		numItems = arr.length;
+	}
+	
+	//buildHeap 함수 구현
+	public void buildHeap() {
+		if(numItems >= 2) {
+			for(int i = (numItems - 2) / 2; i >= 0; i --) {
+				percolateDown(i);
+			}
+		}
+	}
+	
+	//percorateDown 함수 구현
+	private void percolateDown(int i) {
+		int child = 2 * i + 1;
+		int rightChild = 2 * i + 2;
+		if(child < numItems - 1) {
+			if(rightChild <= numItems - 1 && A[child] < A[rightChild])
+				child = rightChild;
+		
+			if(A[i] < A[child]) {
+				int tmp = A[i];
+				A[i] = A[child];
+				A[child] = tmp;
+				percolateDown(child);
+			}
+		}
+	}
+	
+	//deleteMax 함수 구현
+	public int deleteMax() {
+		int max = A[0];
+		A[0] = A[numItems - 1];
+		numItems --;
+		percolateDown(0);
+		return max;
+	}
+	
+	
+	
+}
+
+
