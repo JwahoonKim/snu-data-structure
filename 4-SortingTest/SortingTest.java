@@ -65,7 +65,7 @@ public class SortingTest
 						newvalue = DoMergeSort(newvalue, 0, newvalue.length - 1);
 						break;
 					case 'Q':	// Quick Sort
-						newvalue = DoQuickSort(newvalue);
+						newvalue = DoQuickSort(newvalue, 0, newvalue.length - 1);
 						break;
 					case 'R':	// Radix Sort
 						newvalue = DoRadixSort(newvalue);
@@ -188,16 +188,51 @@ public class SortingTest
 	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private static int[] DoQuickSort(int[] value)
+	private static int[] DoQuickSort(int[] value, int left, int right)
 	{
 		// TODO : Quick Sort 를 구현하라.
+		if(left < right) {
+			// partiton
+			int mid = partition(value, left, right);
+			// left sort left ~ mid - 1
+			DoQuickSort(value, left, mid - 1);
+			// right sort mid ~ right
+			DoQuickSort(value, mid, right);
+		}
+		
 		return (value);
+	}
+	
+	//partition 함수 구현
+	private static int partition(int[] A, int left, int right) {
+		int pivot = A[right];
+		int leftend = left - 1;
+		for(int i = left; i < right; i ++ ) {
+			if(A[i] <= pivot) {
+				leftend ++;
+				int tmp = A[i];
+				A[i] = A[leftend];
+				A[leftend] = tmp;
+			}
+		}
+		int tmp = A[leftend + 1];
+		A[leftend + 1] = pivot;
+		A[right] = tmp;
+		
+		return leftend + 1;  
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	private static int[] DoRadixSort(int[] value)
 	{
 		// TODO : Radix Sort 를 구현하라.
+		/* 
+		 * 1. Radix Sort 음수 입력 들어오는지 check
+		 * --> 들어온다면 어떻게 처리할지 check
+		 * 2. 각 digit에 대한 Do stableSort는 어떻게 할지 고민
+		*/
+		int digitNum = (int)(Math.log10(value[0])+1);
+		
 		return (value);
 	}
 }
@@ -219,7 +254,6 @@ class Heap{
 			}
 		}
 	}
-	
 	//percorateDown 함수 구현
 	private void percolateDown(int i) {
 		int child = 2 * i + 1;
@@ -236,7 +270,6 @@ class Heap{
 			}
 		}
 	}
-	
 	//deleteMax 함수 구현
 	public int deleteMax() {
 		int max = A[0];
@@ -244,10 +277,7 @@ class Heap{
 		numItems --;
 		percolateDown(0);
 		return max;
-	}
-	
-	
-	
+	}	
 }
 
 
