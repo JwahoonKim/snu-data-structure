@@ -62,10 +62,10 @@ public class SortingTest
 						newvalue = DoHeapSort(newvalue);
 						break;
 					case 'M':	// Merge Sort
-						newvalue = DoMergeSort(newvalue, 0, newvalue.length - 1);
+						newvalue = DoMergeSort(newvalue);
 						break;
 					case 'Q':	// Quick Sort
-						newvalue = DoQuickSort(newvalue, 0, newvalue.length - 1);
+						newvalue = DoQuickSort(newvalue);
 						break;
 					case 'R':	// Radix Sort
 						newvalue = DoRadixSort(newvalue);
@@ -107,7 +107,7 @@ public class SortingTest
 		// 같은 크기의 새로운 배열을 만들어 그 배열을 리턴할 수도 있다.
 		int size = value.length;
 		for(int last = size - 1; 0 < last; last--) {
-			for(int i = 0; i < last - 1; i++) {
+			for(int i = 0; i < last; i++) {
 				if(value[i] > value[i + 1]) {
 					int temp = value[i + 1];
 					value[i + 1] = value[i];
@@ -142,22 +142,25 @@ public class SortingTest
 		// TODO : Heap Sort 를 구현하라.
 		Heap heapValue = new Heap(value);
 		heapValue.buildHeap();
-		for(int i = heapValue.numItems - 1; i >= 1; i--) {
-			heapValue.A[i] = heapValue.deleteMax();
+		for(int i = 0; i <= value.length - 1; i++) {
+			heapValue.deleteMax();
 		}
 		int[] sortedValue = heapValue.A;
 		return (sortedValue);
-	}
-	
+	}	
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private static int[] DoMergeSort(int[] value, int left, int right)
+	private static int[] DoMergeSort(int[] value) {
+		return DoMergeSort2(value, 0, value.length - 1);
+	}
+	
+	private static int[] DoMergeSort2(int[] value, int left, int right)
 	{ 
 		// TODO : Merge Sort 를 구현하라.
 		if(left < right) {
 			int mid = (left + right) / 2;
-			DoMergeSort(value, left, mid);
-			DoMergeSort(value, mid + 1, right);
+			DoMergeSort2(value, left, mid);
+			DoMergeSort2(value, mid + 1, right);
 			merge(value, left, mid, right);
 		}
 		return (value);
@@ -188,16 +191,20 @@ public class SortingTest
 	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private static int[] DoQuickSort(int[] value, int left, int right)
+	private static int[] DoQuickSort(int[] value) {
+		return DoQuickSort2(value, 0, value.length - 1);
+	}
+	
+	private static int[] DoQuickSort2(int[] value, int left, int right)
 	{
 		// TODO : Quick Sort 를 구현하라.
 		if(left < right) {
 			// partiton
 			int mid = partition(value, left, right);
 			// left sort left ~ mid - 1
-			DoQuickSort(value, left, mid - 1);
+			DoQuickSort2(value, left, mid - 1);
 			// right sort mid ~ right
-			DoQuickSort(value, mid, right);
+			DoQuickSort2(value, mid, right);
 		}
 		
 		return (value);
@@ -226,12 +233,40 @@ public class SortingTest
 	private static int[] DoRadixSort(int[] value)
 	{
 		// TODO : Radix Sort 를 구현하라.
-		/* 
-		 * 1. Radix Sort 음수 입력 들어오는지 check
-		 * --> 들어온다면 어떻게 처리할지 check
-		 * 2. 각 digit에 대한 Do stableSort는 어떻게 할지 고민
-		*/
-		int digitNum = (int)(Math.log10(value[0])+1);
+		int[] counter = new int[19];
+		int[] bucket = new int[value.length];
+		
+		int digitNum = 0;
+		
+		for(int i=0; i < value.length; i++) {
+			int now = value[i] > 0 ? value[i] : -value[i];
+			digitNum = Math.max(digitNum, (int)(Math.log10(now)+1)); 
+		}
+		
+		int maxDigit = (int) Math.pow(10, digitNum - 1);
+		
+		for(int digit = 1; digit <= maxDigit; digit *= 10) {
+			Arrays.fill(counter, 0);
+			
+			for(int i = 0; i < value.length; i++) {
+				// -9 --> 0 ... 9 --> 18로 인덱싱되게
+				int num = (value[i] / digit) % 10 + 9;
+				counter[num]++ ;
+			}
+			
+			for(int j = 1; j < 19; j++) {
+				counter[j] += counter[j - 1];
+			}
+			
+			for(int k = value.length - 1; k >= 0; k--) {
+				int num = (value[k] / digit) % 10 + 9;
+				bucket[--counter[num]] = value[k];
+			}
+
+			int[] tmp = value;
+			value = bucket;
+			bucket = tmp;			
+		}
 		
 		return (value);
 	}
@@ -258,9 +293,10 @@ class Heap{
 	private void percolateDown(int i) {
 		int child = 2 * i + 1;
 		int rightChild = 2 * i + 2;
-		if(child < numItems - 1) {
-			if(rightChild <= numItems - 1 && A[child] < A[rightChild])
+		if(child <= numItems - 1) {
+			if((rightChild <= numItems - 1) && (A[child] < A[rightChild])) {
 				child = rightChild;
+				}
 		
 			if(A[i] < A[child]) {
 				int tmp = A[i];
@@ -274,6 +310,7 @@ class Heap{
 	public int deleteMax() {
 		int max = A[0];
 		A[0] = A[numItems - 1];
+		A[numItems - 1] = max;
 		numItems --;
 		percolateDown(0);
 		return max;
