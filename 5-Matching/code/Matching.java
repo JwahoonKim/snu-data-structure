@@ -31,6 +31,16 @@ public class Matching
 		return Pattern.matches("^[<@?]\\s\\S+", input);
 	}
 	
+	// 해시 함수
+	private static int hash(String str) {
+		int length = str.length();
+		int sum = 0;
+		for(int i = 0; i < length; i ++) {
+			sum += (int)str.charAt(i);
+		}
+		return sum % 100;
+	}
+	
 	private static void command(String input) throws IOException
 	{	
 		if(!isValid(input)) throw new IOException();
