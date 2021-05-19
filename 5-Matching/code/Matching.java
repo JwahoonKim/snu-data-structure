@@ -4,6 +4,8 @@ import java.util.*;
 
 public class Matching
 {
+	public static AVLTree[] hashTable = new AVLTree[100];
+	
 	public static void main(String args[])
 	{
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -46,25 +48,54 @@ public class Matching
 		if(!isValid(input)) throw new IOException();
 		String[] arr = input.split(" ");
 		String type = arr[0];
-		String fileName = arr[1];
+		String content = arr[1];
 		
-		if (type.equals("<")) {
-			// file을 읽는 코드, 출처 : https://www.w3schools.com/java/java_files_read.asp
-		    try {
-		        File file = new File(fileName);
-		        Scanner sc = new Scanner(file);
-		        while (sc.hasNextLine()) {
-		          String data = sc.nextLine();
-		          System.out.println(data);
-		        }
-		        sc.close();
-		      } catch (FileNotFoundException e) {
-		        e.printStackTrace();
-		      }
-		}
-		
-		else if(type.equals("@")) {}
-		
-		else if(type.equals("?")) {}
+		if (type.equals("<")) {inputData(content);}
+		else if(type.equals("@")) {printData(content);}
+		else if(type.equals("?")) {searchData(content);}
+		else {throw new IOException();}
 	}
+	// 입력
+	static void inputData(String content) throws IOException {
+	    try {
+	        File file = new File(content);
+	        BufferedReader br = new BufferedReader(new FileReader(file));
+	        String line = null;
+	        int k = 0;
+	        while ((line = br.readLine()) != null) {
+	        	k++;
+	          for(int i = 0; i <= line.length() - 6; i ++) {
+	        	  String sub = "";
+	        	  Place p = new Place();
+	        	  for(int j = 0; j < 6; j ++) {
+	        		  sub += line.charAt(i + j);
+	        		  p.line = k;
+	        		  p.start = i + 1;
+	        	  }
+	        	  int slotNumber = hash(sub);
+	        	  if(hashTable[slotNumber] == null) {
+	        		  hashTable[slotNumber] = new AVLTree<String>();
+	        	  }
+	        	  hashTable[slotNumber].insert(sub, p);
+	          }
+	        }
+	        br.close();
+	      } catch (FileNotFoundException e) {
+	        e.printStackTrace();
+	      }
+	}
+	
+	//출력
+	static void printData(String str) {
+		int slotNumber = Integer.parseInt(str);
+		try {
+			AVLTree.preOrderPrint(hashTable[slotNumber].getRoot(), hashTable[slotNumber].getRoot());
+		} 
+		catch (NullPointerException e){
+			System.out.println("EMPTY");
+		}
+	}
+	
+	static void searchData(String str) {}
+	
 }

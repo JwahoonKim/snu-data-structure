@@ -2,12 +2,15 @@
 // 자료구조 수업의 AVLTree 부분 PPT를 참고하여 구현했습니다.
 public class AVLTree<T extends Comparable<T>>{
 	private AVLNode<T> root;
-	private final AVLNode NIL = new AVLNode(null, null, null, 0);
+	public final static AVLNode NIL = new AVLNode(null, null, null, 0);
 	
 	public AVLTree() {
 		root = NIL;
 	}
 	
+	public AVLNode getRoot() {
+		return root;
+	}
 	// 검색
 	public AVLNode<T> search(T t) {
 		return searchItem(root, t);
@@ -22,108 +25,37 @@ public class AVLTree<T extends Comparable<T>>{
 	}
 	
 	// 삽입
-	public void insert(T t) {
-		root = insertItem(root, t);
+	public void insert(T t, Place p) {
+		root = insertItem(root, t, p);
 	}
 	// 같은경우도 체크해서 추가해주자
-	private AVLNode insertItem(AVLNode<T> tNode, T t) {  
+	private AVLNode insertItem(AVLNode<T> tNode, T t, Place p) {  
 		int type;
 		if(tNode == NIL) {
-			tNode = new AVLNode(t);
+			tNode = new AVLNode(t, p);
 			return tNode;
 		}
+		if(t.compareTo(tNode.item) == 0) {
+			tNode.list.add(p);
+		}
 		else if(t.compareTo(tNode.item) < 0) {
-			tNode.left = insertItem(tNode.left, t);
+			tNode.left = insertItem(tNode.left, t, p);
 			tNode.height = 1 + Math.max(tNode.left.height, tNode.right.height);
 			type = needBalance(tNode);
 			if(type != NO_NEED) {
 				tNode = balanceAVL(tNode, type);
 			}
-			else {
-				tNode.right = insertItem(tNode.right, t);
-				tNode.height = 1 + Math.max(tNode.right.height, tNode.left.height);
-				type = needBalance(tNode);
-				if(type != NO_NEED) {
-					tNode = balanceAVL(tNode, type);
-				}
+		}
+		else if(t.compareTo(tNode.item) > 0) {
+			tNode.right = insertItem(tNode.right, t, p);
+			tNode.height = 1 + Math.max(tNode.right.height, tNode.left.height);
+			type = needBalance(tNode);
+			if(type != NO_NEED) {
+				tNode = balanceAVL(tNode, type);
 			}
 		}
 		return tNode;
 	}
-	
-	// 삭제
-	public void delete(T t) {
-		root = deleteItem(root, t);
-	}
-	private AVLNode deleteItem(AVLNode<T> tNode, T t) {
-		if(tNode == NIL) return NIL;
-		else {
-			if(t.compareTo(tNode.item) == 0) {
-				tNode = deleteNode(tNode);
-			}
-			else if(t.compareTo(tNode.item) < 0){
-				tNode.left = deleteItem(tNode.left, t);
-				tNode.height = 1 + Math.max(tNode.right.height, tNode.left.height);
-				int type = needBalance(tNode);
-				if(type != NO_NEED) {
-					tNode = balanceAVL(tNode, type);
-				}
-			}
-			else {
-				tNode.right = deleteItem(tNode.right, t);
-				tNode.height = 1 + Math.max(tNode.right.height, tNode.left.height);
-				int type = needBalance(tNode);
-				if(type != NO_NEED) {
-					tNode = balanceAVL(tNode, type);
-				}
-			}
-			return tNode;
-		}
-	}
-	
-	private AVLNode deleteNode(AVLNode<T> tNode) {
-		if((tNode.left == NIL) && (tNode.right == NIL)) {
-			return NIL;
-		}
-		else if (tNode.left == NIL) return tNode.right;
-		else if (tNode.right == NIL) return tNode.left;
-		else {
-			returnPair<T> rPair = deleteMinItem(tNode.right);
-			tNode.item = rPair.item;
-			tNode.right = rPair.node;
-			tNode.height = 1 + Math.max(tNode.right.height, tNode.left.height);
-			int type = needBalance(tNode);
-			if(type != NO_NEED) {
-				tNode = balanceAVL(tNode, type);
-			}
-			return tNode;
-		}
-	}
-	
-	private returnPair deleteMinItem(AVLNode tNode) {
-		if(tNode.left == NIL) return new returnPair(tNode.item, tNode.right);
-		else {
-			returnPair rPair = deleteMinItem(tNode.left);
-			tNode.left = rPair.node;
-			tNode.height = 1 + Math.max(tNode.right.height, tNode.left.height);
-			int type = needBalance(tNode);
-			if(type != NO_NEED) {
-				tNode = balanceAVL(tNode, type);
-			}
-			rPair.node = tNode;
-			return rPair;
-		}
-	}	
-	
-	private class returnPair<T> {
-		T item;
-		AVLNode node;
-		private returnPair(T t, AVLNode nd) {
-			item = t;
-			node = nd;
-		}
-	}
-	
 	
 	// Balancing 작업
 	private final int LL = 1, LR = 2, RR = 3, RL = 4, NO_NEED = 0, ILLEGAL = -1;
@@ -187,4 +119,12 @@ public class AVLTree<T extends Comparable<T>>{
 		return LChild;
 	}
 	
+	// 전위순회 출력
+	public static void preOrderPrint(AVLNode node, AVLNode root) {
+		if(node == NIL) {return;}
+		if(node == root) System.out.print(node.item);
+		else System.out.print(" "+node.item);
+		preOrderPrint(node.left, root);
+		preOrderPrint(node.right, root);
+	}
 }

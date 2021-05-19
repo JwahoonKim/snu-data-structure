@@ -8,9 +8,16 @@ public class AVLNode<T extends Comparable<T>> {
 	
 	public AVLNode(T sub) {
 		item = sub;
-		left = null;
-		right = null;
+		left = AVLTree.NIL;
+		right = AVLTree.NIL;
 		height = 1;
+	}
+	public AVLNode(T sub, Place p) {
+		item = sub;
+		left = AVLTree.NIL;
+		right = AVLTree.NIL;
+		height = 1;
+		list.add(p);
 	}
 	public AVLNode(T sub, AVLNode left, AVLNode right) {
 		item = sub;
@@ -30,8 +37,15 @@ class Place {
 	int line;
 	int start;
 	
+	public Place() {
+		this.line = 0;
+		this.start = 0;
+	}
 	public Place(int line, int start) {
 		this.line = line;
 		this.start = start;
+	}
+	public String toString(){
+		return "(" + this.line + ", " + this.start + ")";
 	}
 }
