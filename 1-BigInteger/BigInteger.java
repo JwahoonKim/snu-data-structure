@@ -3,348 +3,260 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BigInteger {
+
+public class BigInteger
+{
     public static final String QUIT_COMMAND = "quit";
     public static final String MSG_INVALID_INPUT = "입력이 잘못되었습니다.";
-    public String number;
-    public char[] numArr = new char[201];
-    public int size;
-    // implement this
-    public static final Pattern EXPRESSION_PATTERN = Pattern.compile("");
+
+    int[] value = new int[201]; // 들어온 문자열 숫자를 저장할 배열
+    int size; // 숫자의 자리 수
+    boolean isMinus;
+    boolean isStartWithOperator;
 
     public BigInteger(String s) {
-        this.number = s;
-        char[] arr = new char[201];
-        size = s.length();
+        isMinus = s.startsWith("-"); // 음수인지 아닌지 체크 -> 음수라면 true 양수라면 false
+        isStartWithOperator = (s.startsWith("-") || s.startsWith("+"));
+        this.size = isStartWithOperator ? s.length() - 1 : s.length();
 
-        // 입력받은 string을 한글자씩 거꾸로 배열에 옮기기 (연산 편해지도록)
-        for (int i = size - 1, j = 0; i >= 0; i--, j++) {
-            arr[j] = s.charAt(i);
+        // 문자열을 배열에 저장
+        if (!isStartWithOperator) {
+            for (int i = 0; i < s.length(); i++) {
+                value[i] = s.charAt(i) - '0';
+            }
+        } else {
+            for (int i = 1; i < s.length(); i++) {
+                value[i - 1] = s.charAt(i) - '0';
+            }
         }
-
-        // numArr는 입력받은 숫자를 거꾸로 배열에 저장
-        this.numArr = arr;
     }
 
+    //== 더하기 ==//
     public BigInteger add(BigInteger big) {
-        int resultSize = Math.max(this.size, big.size) + 1;
-        int[] resultArr = new int[resultSize];
-        int nowTmp = 0;
-        int nextTmp = 0;
-        String result = "";
-        for (int i = this.size; i < resultSize; i++) {
-            numArr[i] = '0';
+        // 둘 다 양수인 경우
+        if (!this.isMinus && !big.isMinus) {
+            return addPositiveValues(this, big);
         }
-        for (int i = big.size; i < resultSize; i++) {
-            big.numArr[i] = '0';
+        // 둘다 음수인 경우
+        else if (this.isMinus && big.isMinus) {
+            BigInteger result = addPositiveValues(this, big);
+            result.isMinus = true;
+            return result;
         }
-        // 한자리 씩 더하기 과정
-        for (int i = 0; i < resultSize; i++) {
-            int sum = (numArr[i] - '0') + (big.numArr[i] - '0');
-            int res = sum + nowTmp;
-
-            if (res >= 10) {
-                nextTmp = 1;
-                res -= 10;
-            }
-
-            resultArr[i] = res;
-            nowTmp = nextTmp;
-            nextTmp = 0;
+        // 하나만 음수인 경우
+        else if (this.isMinus) {
+            BigInteger num = new BigInteger(this.toString().substring(1));
+            return big.subtract(num);
         }
-
-        if (resultArr[resultSize - 1] == 0) {
-            for (int i = resultSize - 2; i >= 0; i--) {
-                result += resultArr[i];
-            }
-        } else {
-            for (int i = resultSize - 1; i >= 0; i--) {
-                result += resultArr[i];
-            }
-        }
-
-        return new BigInteger(result);
-    }
-
-    // 자신이 크면 1, 인자가 크면 2를 return 하는 함수
-    public int findBigger(String num2) {
-        String num1 = this.number;
-        if (num1.length() > num2.length())
-            return 1;
-        else if (num1.length() < num2.length())
-            return 2;
         else {
-            for (int i = 0; i < num1.length(); i++) {
-                int first = (int) (num1.charAt(i) - '0');
-                int second = (int) (num2.charAt(i) - '0');
-                if (first > second)
-                    return 1;
-                else if (first < second)
-                    return 2;
-                else
-                    continue;
-            }
+            BigInteger num = new BigInteger(big.toString().substring(1));
+            return this.subtract(num);
         }
-        return 3;
     }
 
-    public BigInteger subtract(BigInteger big) {
-        int resultSize = Math.max(this.size, big.size);
-        int[] resultArr = new int[resultSize];
-        String result = "";
-        int nowTmp = 0;
-        int nextTmp = 0;
-        boolean flag = false;
-        if (this.findBigger(big.number) == 3) {
-            return new BigInteger("0");
-        }
-        // 더 큰 수 찾아서 빼고 부호조정하자
-        if (this.findBigger(big.number) == 1) {
-            // (num - big)
-            for (int i = big.size; i < resultSize; i++) {
-                big.numArr[i] = '0';
-            }
-            for (int i = 0; i < resultSize; i++) {
-                int sum = (numArr[i] - '0') - (big.numArr[i] - '0');
-                int res = sum + nowTmp;
-                if (res < 0) {
-                    nextTmp = -1;
-                    res += 10;
-                }
-                resultArr[i] = res;
-                nowTmp = nextTmp;
-                nextTmp = 0;
-            }
+    // 둘 다 양수인 경우 덧셈
+    public BigInteger addPositiveValues(BigInteger num1, BigInteger num2) {
+        int[] reverseNum1 = getReverseArray(num1.value, num1.size);
+        int[] reverseNum2 = getReverseArray(num2.value, num2.size);
+        int[] result = new int[201];
+        int carry = 0;
 
-            for (int i = resultSize - 1; i >= 0; i--) {
-                if (resultArr[i] == 0 && flag == false)
-                    continue;
-                if (resultArr[i] != 0)
-                    flag = true;
-                result += resultArr[i];
-            }
-        } else {
-            result = '-' + big.subtract(this).number;
+        // 뒤에서부터 한자리씩 덧셈
+        for (int i = 0; i < 201; i ++) {
+            int sum = reverseNum1[i] + reverseNum2[i] + carry;
+            result[i] = sum % 10;
+            if (sum >= 10) carry = 1;
+            else carry = 0;
         }
-        return new BigInteger(result);
+
+        int size = getSize(result);
+        String resultString = getResultString(result, size);
+
+        return new BigInteger(resultString);
+    }
+
+
+
+    //== 빼기 ==//
+    public BigInteger subtract(BigInteger big) {
+        if (!this.isMinus && big.isMinus) {
+            // 음수부 제거하고 덧셈시키기
+            BigInteger num = new BigInteger(big.toString().substring(1));
+            return this.add(num);
+        }
+        else if (this.isMinus && !big.isMinus) {
+            BigInteger num = new BigInteger(this.toString().substring(1));
+            return new BigInteger("-" + num.add(big).toString());
+        }
+        else if (!this.isMinus && !big.isMinus) {
+            if (findBigger(this, big) > 0) {
+                return substractByBiggerToSmaller(this, big);
+            } else {
+                return new BigInteger("-" + substractByBiggerToSmaller(big, this).toString());
+            }
+        }
+        else {
+            BigInteger num = new BigInteger(big.toString().substring(1));
+            return this.add(num);
+        }
+    }
+
+    private BigInteger substractByBiggerToSmaller(BigInteger num1, BigInteger num2) {
+        int[] reverseNum1 = getReverseArray(num1.value, num1.size);
+        int[] reverseNum2 = getReverseArray(num2.value, num2.size);
+        int[] result = new int[201];
+        int carry = 0;
+
+        // 뒤에서부터 한자리씩 뺄셈
+        for (int i = 0; i < 201; i ++) {
+            int sub = reverseNum1[i] - reverseNum2[i] + carry;
+            if (sub < 0) {
+                carry = -1;
+                result[i] = 10 + sub;
+            } else {
+                carry = 0;
+                result[i] = sub;
+            }
+        }
+
+        int size = getSize(result);
+        String resultString = getResultString(result, size);
+
+        return new BigInteger(resultString);
     }
 
     public BigInteger multiply(BigInteger big) {
-        int resultSize = 202;
-        int[] resultArr = new int[resultSize];
-        int nowTmp = 0;
-        BigInteger total = new BigInteger("");
+        if ((this.isMinus && big.isMinus) || (!this.isMinus && !big.isMinus)) {
+            return multiplyPositiveValues(this, big);
+        } else {
+            return new BigInteger("-" + multiplyPositiveValues(this, big).toString());
+        }
+    }
 
-        for (int i = this.size; i < 102; i++) {
-            numArr[i] = '0';
-        }
-        for (int i = big.size; i < 102; i++) {
-            big.numArr[i] = '0';
-        }
-        for (int i = 0; i < big.size; i++) {
-            nowTmp = 0;
-            for (int j = 0; j < size; j++) {
-                int mul = (numArr[j] - '0') * (big.numArr[i] - '0');
-                int res = mul % 10 + nowTmp;
-                if (res >= 10) {
-                    res -= 10;
-                    nowTmp = mul / 10 + 1;
-                } else {
-                    nowTmp = mul / 10;
-                }
-                resultArr[j + i] = res;
+    private BigInteger multiplyPositiveValues(BigInteger num1, BigInteger num2) {
+        int[] reverseNum1 = getReverseArray(num1.value, num1.size);
+        int[] reverseNum2 = getReverseArray(num2.value, num2.size);
+        BigInteger resultBigInteger = new BigInteger("0");
+        int carry = 0;
+
+        for (int i = 0; i < num1.size; i++) {
+            int[] res = new int[201];
+            for (int j = 0; j < num2.size; j++) {
+                int mul = reverseNum1[i] * reverseNum2[j] + carry;
+                int now = mul % 10;
+                carry = mul / 10;
+                res[i + j] = now;
             }
-            resultArr[i + size] = nowTmp;
 
-            total = total.add(new BigInteger(BigInteger.toString(resultArr)));
-            resultArr = new int[resultSize];
+            if (carry > 0) {
+                res[i + num2.size] = carry;
+                carry = 0;
+            }
+
+            int size = getSize(res);
+            String resultString = getResultString(res, size);
+
+            resultBigInteger = resultBigInteger.add(new BigInteger(resultString));
         }
-        return new BigInteger(total.number);
+        return resultBigInteger;
+    }
+
+    // 배열 뒤집기
+    private int[] getReverseArray(int[] arr, int size) {
+        int[] reverseArray = new int[201];
+        for (int i = 0; i < size; i++) {
+            reverseArray[i] = arr[size - i - 1];
+        }
+        return reverseArray;
+    }
+
+    // 배열의 사이즈 구하기
+    // "1234"인 경우 result 배열은 [1,2,3,4,0,0,0,...] 인데 이때 size = 4
+    private int getSize(int[] result) {
+        int size = 0;
+        for (int i = 200; i >= 0; i--) {
+            if (result[i] != 0) {
+                size = i;
+                break;
+            }
+        }
+        return size;
+    }
+
+    // result 배열 -> 문자열로
+    // [1,2,3,4] -> "1234"
+    private String getResultString(int[] result, int size) {
+        String resultString = "";
+        for (int i = size; i >= 0; i--) resultString += result[i];
+        return resultString;
+    }
+
+    // num1이 크면 양수, num2가 크면 음수 리턴, 같으면 1 리턴
+    private int findBigger(BigInteger num1, BigInteger num2) {
+        if (num1.size != num2.size) return num1.size - num2.size;
+        else {
+            for (int i = 0; i < size; i++) {
+                if (num1.value[i] == num2.value[i]) continue;
+                if (num1.value[i] > num2.value[i]) return 1;
+                else return -1;
+            }
+        }
+        return 1;
     }
 
     @Override
     public String toString() {
-        return number;
-    }
-
-    public static String toString(int[] arr) {
         String result = "";
-        boolean flag = false;
-        for (int i = arr.length - 1; i >= 0; i--) {
-            if (arr[i] == 0 && flag == false)
-                continue;
-            if (arr[i] != 0)
-                flag = true;
-            result += arr[i];
-        }
+        for (int i = 0; i < size; i ++) result += value[i];
+        if (isMinus) result = "-" + result;
         return result;
     }
 
     static BigInteger evaluate(String input) throws IllegalArgumentException {
-        // implement here
-        // parse input
-        // using regex is allowed
+        Pattern pattern = Pattern.compile("(?<num1>[\\+\\-]?[0-9]+)(?<operator>[\\+|\\-|\\*])(?<num2>[\\+\\-]?[0-9]+)");
+        input = input.replaceAll(" ", "");
 
-        char firstOperator = ' ';
-        char[] secondOperator = new char[2];
-        String firstNumber = "";
-        String secondNumber = "";
-        int cursor = 0;
+        Matcher m = pattern.matcher(input);
+        m.find();
 
-        // 1. 공백제거
-        input = input.replaceAll("\\p{Z}", "");
+        BigInteger num1 = new BigInteger(m.group("num1"));
+        BigInteger num2 = new BigInteger(m.group("num2"));
+        String operator = m.group("operator");
 
-        // 2. 첫번째 char가 부호인지 체크
-        char first = input.charAt(0);
-        if (first == '+' || first == '-') {
-            firstOperator = first;
-            cursor++;
-        }
-        int i = 0;
-        // 3. 숫자, 부호, 숫자 순으로 배열에 하나씩 삽입
-        while (true) {
-            if (cursor >= input.length())
+        BigInteger result;
+
+        switch(operator) {
+            case "+":
+                result = num1.add(num2);
                 break;
-            char now = input.charAt(cursor);
-            // now가 숫자가 아닌 경우
-            if (now < 48 || now > 57) {
-                secondOperator[i] = now;
-                i++;
-                cursor++;
-            } else {
-                // 부호가 한번도 나오지 않았으면 첫번째 숫자 체크 중
-                if (i == 0) {
-                    firstNumber += now;
-                } else {
-                    secondNumber += now;
-                }
-                cursor++;
-            }
+            case "-":
+                result = num1.subtract(num2);
+                break;
+            case "*":
+                result = num1.multiply(num2);
+                break;
+            default:
+                result = null;
         }
-        BigInteger num1 = new BigInteger(firstNumber);
-        BigInteger num2 = new BigInteger(secondNumber);
-
-        // 곱셈을 써야하는 경우
-        if (secondOperator[0] == '*') {
-            if (secondNumber.equals("0") || firstNumber.equals("0")) {
-                return new BigInteger("0");
-            }
-            if (firstOperator == ' ' && secondOperator[1] == '\u0000') {
-                return num1.multiply(num2);
-            }
-            if (firstOperator == ' ' && secondOperator[1] == '+') {
-                return num1.multiply(num2);
-            }
-            if (firstOperator == ' ' && secondOperator[1] == '-') {
-                String res = "-" + num1.multiply(num2).number;
-                return new BigInteger(res);
-            }
-            if (firstOperator == '+' && secondOperator[1] == '\u0000') {
-                return num1.multiply(num2);
-            }
-            if (firstOperator == '+' && secondOperator[1] == '+') {
-                return num1.multiply(num2);
-            }
-            if (firstOperator == '+' && secondOperator[1] == '-') {
-                String res = "-" + num1.multiply(num2).number;
-                return new BigInteger(res);
-            }
-            if (firstOperator == '-' && secondOperator[1] == '\u0000') {
-                String res = "-" + num1.multiply(num2).number;
-                return new BigInteger(res);
-            }
-            if (firstOperator == '-' && secondOperator[1] == '+') {
-                String res = "-" + num1.multiply(num2).number;
-                return new BigInteger(res);
-            }
-            if (firstOperator == '-' && secondOperator[1] == '-') {
-                return num1.multiply(num2);
-            }
-        }
-        // 가운데가 덧셈인 경우
-        if (secondOperator[0] == '+') {
-            if (firstOperator == ' ' && secondOperator[1] == '\u0000') {
-                return num1.add(num2);
-            }
-            if (firstOperator == ' ' && secondOperator[1] == '+') {
-                return num1.add(num2);
-            }
-            if (firstOperator == ' ' && secondOperator[1] == '-') {
-                String res = num1.subtract(num2).number;
-                return new BigInteger(res);
-            }
-            if (firstOperator == '+' && secondOperator[1] == '\u0000') {
-                return num1.add(num2);
-            }
-            if (firstOperator == '+' && secondOperator[1] == '+') {
-                return num1.add(num2);
-            }
-            if (firstOperator == '+' && secondOperator[1] == '-') {
-                String res = num1.subtract(num2).number;
-                return new BigInteger(res);
-            }
-            if (firstOperator == '-' && secondOperator[1] == '\u0000') {
-                String res = num2.subtract(num1).number;
-                return new BigInteger(res);
-
-            }
-            if (firstOperator == '-' && secondOperator[1] == '+') {
-                String res = num2.subtract(num1).number;
-                return new BigInteger(res);
-
-            }
-            if (firstOperator == '-' && secondOperator[1] == '-') {
-                String res = "-" + num1.add(num2).number;
-                return new BigInteger(res);
-            }
-        }
-
-        // 가운데가 뺄셈인 경우
-        if (secondOperator[0] == '-') {
-            if (firstOperator == ' ' && secondOperator[1] == '\u0000') {
-                return num1.subtract(num2);
-            }
-            if (firstOperator == ' ' && secondOperator[1] == '+') {
-                return num1.subtract(num2);
-            }
-            if (firstOperator == ' ' && secondOperator[1] == '-') {
-                return num1.add(num2);
-            }
-            if (firstOperator == '+' && secondOperator[1] == '\u0000') {
-                return num1.subtract(num2);
-            }
-            if (firstOperator == '+' && secondOperator[1] == '+') {
-                return num1.subtract(num2);
-            }
-            if (firstOperator == '+' && secondOperator[1] == '-') {
-                return num1.add(num2);
-            }
-            if (firstOperator == '-' && secondOperator[1] == '\u0000') {
-                String res = "-" + num1.add(num2).number;
-                return new BigInteger(res);
-            }
-            if (firstOperator == '-' && secondOperator[1] == '+') {
-                String res = "-" + num1.add(num2).number;
-                return new BigInteger(res);
-
-            }
-            if (firstOperator == '-' && secondOperator[1] == '-') {
-                return num2.subtract(num1);
-            }
-        }
-        return new BigInteger("0");
+        return result;
     }
 
     public static void main(String[] args) throws Exception {
-        try (InputStreamReader isr = new InputStreamReader(System.in)) {
-            try (BufferedReader reader = new BufferedReader(isr)) {
+        try (InputStreamReader isr = new InputStreamReader(System.in))
+        {
+            try (BufferedReader reader = new BufferedReader(isr))
+            {
                 boolean done = false;
-                while (!done) {
+                while (!done)
+                {
                     String input = reader.readLine();
 
-                    try { // input이 quit이었으면 done = true 아니면 false
+                    try
+                    {
                         done = processInput(input);
-                    } catch (IllegalArgumentException e) {
+                    }
+                    catch (IllegalArgumentException e)
+                    {
                         System.err.println(MSG_INVALID_INPUT);
                     }
                 }
@@ -355,16 +267,21 @@ public class BigInteger {
     static boolean processInput(String input) throws IllegalArgumentException {
         boolean quit = isQuitCmd(input);
 
-        if (quit) {
+        if (quit)
+        {
             return true;
-        } else {
+        }
+        else
+        {
             BigInteger result = evaluate(input);
             System.out.println(result.toString());
+
             return false;
         }
     }
 
-    static boolean isQuitCmd(String input) { // input이 quit 이면 processInput에서 종료하도록 만들어줌
+    static boolean isQuitCmd(String input)
+    {
         return input.equalsIgnoreCase(QUIT_COMMAND);
     }
 }
